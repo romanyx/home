@@ -34,8 +34,8 @@ func main() {
 	}
 
 	h := httprouter.NewHandler(medium.Stories, logFunc, t)
-	s := httprouter.NewServer(*addr, h)
+	s := httprouter.NewServer(*addr, h, httprouter.GzipOn, httprouter.Letsencrypt)
 	defer s.Close()
 
-	log.Fatal(s.ListenAndServe())
+	log.Fatal(s.ListenAndServeLetsencrypt())
 }

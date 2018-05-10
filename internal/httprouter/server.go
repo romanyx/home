@@ -1,16 +1,33 @@
 package httprouter
 
 import (
+	"crypto/tls"
 	"net/http"
 	"time"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 // GzipOn enables gzip compression for Server.
 func GzipOn(s *Server) {
 	s.gzip = true
+}
+
+// Letsencrypt sets TLS config
+func Letsencrypt(s *Server) {
+	m := &autocert.Manager{
+		Cache:      autocert.DirCache("."),
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist("romanyx.ru"),
+	}
+
+	go http.ListenAndServe(":http", m.HTTPHandler(nil))
+
+	s.server.TLSConfig = &tls.Config{
+		GetCertificate: m.GetCertificate,
+	}
 }
 
 // ReadTimeout sets Server response read timeout.
@@ -29,6 +46,11 @@ type Server struct {
 // ListenAndServe starts server.
 func (s *Server) ListenAndServe() error {
 	return s.server.ListenAndServe()
+}
+
+// ListenAndServeLetsencrypt starts tls server
+func (s *Server) ListenAndServeLetsencrypt() error {
+	return s.server.ListenAndServeTLS("", "")
 }
 
 // Close closes the server.
