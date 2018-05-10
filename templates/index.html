@@ -1,0 +1,27 @@
+<header>
+  <h1>Roman Budnikov's website</h1>
+  <div class="links">
+    <a href="https://github.com/romanyx" class="github" target="_blank">
+      github
+    </a>
+    <a href="https://medium.com/@romanyx90" class="twitter" target="_blank">
+      medium
+    </a>
+    <a href="https://twitter.com/romanyx0" class="twitter" target="_blank">
+      twitter
+    </a>
+    <a href="https://www.linkedin.com/in/roman-budnikov-a704ba121/" class="twitter" target="_blank">
+      linkedin
+    </a>
+  </div>
+</header>
+<section class="content">
+  <h2>About</h2>
+  <p class="description">
+    Hello there! I'm Roman Budnikov. I'm golang backend developer, with more than 5 years experience in web development, former ruby on rails full stack developer. I enjoy contributing to open source, cycling, homebrewing and distilling.
+  </p>
+  <h2>Publications</h2>
+  {{ range .Stories }}
+    <a href="{{ .Link }}" target="_blank">{{ .Title }}</a>
+  {{ end }}
+</section>
