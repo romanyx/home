@@ -22,14 +22,16 @@ type Handler struct {
 	storiesFunc func() ([]medium.Story, error)
 	logFunc     func(error)
 	t           *template.Template
+	cv          []byte
 }
 
 // NewHandler returns initialized handler.
-func NewHandler(storiesFunc func() ([]medium.Story, error), logFunc func(error), t *template.Template) *Handler {
+func NewHandler(storiesFunc func() ([]medium.Story, error), logFunc func(error), t *template.Template, cv []byte) *Handler {
 	h := Handler{
 		storiesFunc: storiesFunc,
 		logFunc:     logFunc,
 		t:           t,
+		cv:          cv,
 	}
 
 	return &h
@@ -57,6 +59,15 @@ func (h *Handler) GetIndex(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 	if err := h.t.ExecuteTemplate(w, "layout.html", view); err != nil {
 		h.logFunc(errors.Wrap(err, "execute index template"))
+		http.Error(w, internalServerErrorMessage, http.StatusInternalServerError)
+	}
+}
+
+// GetCV /.
+func (h *Handler) GetCV(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-type", "application/pdf")
+	if _, err := w.Write(h.cv); err != nil {
+		h.logFunc(errors.Wrap(err, "write cv"))
 		http.Error(w, internalServerErrorMessage, http.StatusInternalServerError)
 	}
 }

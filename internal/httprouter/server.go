@@ -62,6 +62,7 @@ func (s *Server) Close() error {
 func NewServer(addr string, h *Handler, options ...func(*Server)) *Server {
 	r := httprouter.New()
 	r.GET("/", h.GetIndex)
+	r.GET("/cv", h.GetCV)
 
 	s := Server{
 		server: http.Server{
