@@ -3,45 +3,42 @@ package main
 import (
 	"flag"
 	"html/template"
-	"io/ioutil"
 	"log"
 
 	"github.com/pkg/errors"
+	"github.com/romanyx/home/internal/cv"
 	"github.com/romanyx/home/internal/httprouter"
 	"github.com/romanyx/home/internal/medium"
+	"github.com/romanyx/home/internal/templates"
 )
 
 var (
-	addr = flag.String("addr", "127.0.0.1:3000", "Server bind address")
+	addr = flag.String("addr", ":3000", "server bind address")
 )
 
 func main() {
 	flag.Parse()
 
-	paths := []string{
-		"../../templates/layout.html",
-		"../../templates/index.html",
-		"../../templates/meta.html",
-		"../../templates/og.html",
+	t := template.New("base")
+	for _, name := range templates.AssetNames() {
+		data := templates.MustAsset(name)
+		tmpl := t.New(name)
+		if _, err := tmpl.Parse(string(data)); err != nil {
+			log.Fatal(errors.Wrapf(err, "parse template %s", name))
+		}
 	}
-
-	cv, err := ioutil.ReadFile("../../static/roman_cv.pdf")
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "read template"))
-	}
-
-	t, err := template.ParseFiles(paths...)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "template parse files"))
-	}
+	log.Println("load templates")
 
 	logFunc := func(err error) {
-		log.Println(err)
+		log.Printf("%+v\n", err)
 	}
 
+	cv := cv.MustAsset("roman_cv.pdf")
+	log.Println("load cv")
 	h := httprouter.NewHandler(medium.Stories, logFunc, t, cv)
 	s := httprouter.NewServer(*addr, h, httprouter.GzipOn, httprouter.Letsencrypt)
 	defer s.Close()
 
+	log.Println("starting server")
 	log.Fatal(s.ListenAndServeLetsencrypt())
 }

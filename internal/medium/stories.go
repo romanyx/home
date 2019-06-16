@@ -45,10 +45,13 @@ func Stories() ([]Story, error) {
 		return nil, errors.Wrap(err, "unmarshal failed")
 	}
 
-	for i, s := range r.Channel.Items {
-		s.Link = strings.Split(s.Link, "?source=")[0]
-		r.Channel.Items[i] = s
+	var result []Story
+	for _, s := range r.Channel.Items {
+		if len(s.Title) < 56 {
+			s.Link = strings.Split(s.Link, "?source=")[0]
+			result = append(result, s)
+		}
 	}
 
-	return r.Channel.Items, nil
+	return result, nil
 }
