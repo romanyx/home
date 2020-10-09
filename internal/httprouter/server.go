@@ -19,7 +19,7 @@ func GzipOn(s *Server) {
 // Letsencrypt sets TLS config
 func Letsencrypt(s *Server) {
 	m := &autocert.Manager{
-		Cache:      autocert.DirCache("."),
+		Cache:      autocert.DirCache("/acme"),
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist("romanyx.info"),
 	}
