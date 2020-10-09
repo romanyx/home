@@ -21,7 +21,7 @@ func Letsencrypt(s *Server) {
 	m := &autocert.Manager{
 		Cache:      autocert.DirCache("/acme"),
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("romanyx.info"),
+		HostPolicy: autocert.HostWhitelist("romanyx.info", "romanyx.ru"),
 	}
 
 	go http.ListenAndServe(":http", m.HTTPHandler(nil))
