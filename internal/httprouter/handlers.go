@@ -7,6 +7,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
+
 	"github.com/romanyx/home/internal/medium"
 )
 
@@ -26,7 +27,12 @@ type Handler struct {
 }
 
 // NewHandler returns initialized handler.
-func NewHandler(storiesFunc func() ([]medium.Story, error), logFunc func(error), t *template.Template, cv []byte) *Handler {
+func NewHandler(
+	storiesFunc func() ([]medium.Story, error),
+	logFunc func(error),
+	t *template.Template,
+	cv []byte,
+) *Handler {
 	h := Handler{
 		storiesFunc: storiesFunc,
 		logFunc:     logFunc,

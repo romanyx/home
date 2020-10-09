@@ -2,6 +2,7 @@ package httprouter
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,7 +21,7 @@ func Letsencrypt(s *Server) {
 	m := &autocert.Manager{
 		Cache:      autocert.DirCache("."),
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("romanyx.ru"),
+		HostPolicy: autocert.HostWhitelist("romanyx.info"),
 	}
 
 	go http.ListenAndServe(":http", m.HTTPHandler(nil))
@@ -58,11 +59,43 @@ func (s *Server) Close() error {
 	return s.server.Close()
 }
 
+func redirectToInfo(fn httprouter.Handle) httprouter.Handle {
+	f := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		url := r.URL
+		if url.Hostname() == "romanyx.ru" {
+			url.Host = "romanyx.info"
+			http.Redirect(w, r, url.String(), http.StatusMovedPermanently)
+			return
+		}
+
+		fn(w, r, p)
+	}
+
+	return f
+}
+
+func (h *Handler) recover(fn httprouter.Handle) httprouter.Handle {
+	f := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		defer func() {
+			if r := recover(); r != nil {
+				h.logFunc(fmt.Errorf("recover: %v", r))
+				w.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprintf(w, "internal server error")
+			}
+		}()
+
+		fn(w, r, p)
+	}
+
+	return f
+}
+
 // NewServer returns initialized Server.
 func NewServer(addr string, h *Handler, options ...func(*Server)) *Server {
 	r := httprouter.New()
-	r.GET("/", h.GetIndex)
-	r.GET("/cv", h.GetCV)
+
+	r.GET("/", h.recover(redirectToInfo(h.GetIndex)))
+	r.GET("/cv", h.recover(redirectToInfo(h.GetCV)))
 
 	s := Server{
 		server: http.Server{

@@ -1,3 +1,3 @@
 ## home
 
-My home page. https://romanyx.ru
+My home page. https://romanyx.info
