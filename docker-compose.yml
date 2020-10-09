@@ -1,4 +1,4 @@
-version: "3.3"
+version: "2"
 
 services:
   home:
@@ -9,4 +9,4 @@ services:
       - "80:3000"
       - "443:3000"
     volumes:
-      "./acme:/acme
+      - "./acme:/acme"
