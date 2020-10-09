@@ -21,7 +21,10 @@ func main() {
 
 	t := template.New("base")
 	for _, name := range templates.AssetNames() {
-		data := templates.MustAsset(name)
+		data, err := templates.Asset(name)
+		if err != nil {
+			log.Fatalf("asset: %v\n", err)
+		}
 		tmpl := t.New(name)
 		if _, err := tmpl.Parse(string(data)); err != nil {
 			log.Fatal(errors.Wrapf(err, "parse template %s", name))
